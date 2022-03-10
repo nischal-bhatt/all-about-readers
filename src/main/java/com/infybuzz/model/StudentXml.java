@@ -1,5 +1,6 @@
 package com.infybuzz.model;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 //for java 11 --> got another way --> refer to pom.xml
@@ -15,6 +16,8 @@ public class StudentXml {
 	public void setId(int id) {
 		this.id = id;
 	}
+	
+	@XmlElement(name="f_n")
 	public String getFirstName() {
 		return firstName;
 	}
