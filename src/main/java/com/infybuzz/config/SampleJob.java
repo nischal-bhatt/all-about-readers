@@ -14,14 +14,17 @@ import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
+import org.springframework.batch.item.xml.StaxEventItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 import com.infybuzz.model.StudentCsv;
 import com.infybuzz.model.StudentJson;
+import com.infybuzz.model.StudentXml;
 import com.infybuzz.processor.FirstItemProcessor;
 import com.infybuzz.reader.FirstItemReader;
 import com.infybuzz.writer.FirstItemWriter;
@@ -55,8 +58,10 @@ public class SampleJob {
 	private Step firstChunkStep() {
 		return stepBuilderFactory.get("First Chunk Step")
 				//.<StudentCsv, StudentCsv>chunk(3)
-				.<StudentJson,StudentJson>chunk(3)
-				.reader(jsonItemReader(null))
+				//.<StudentJson,StudentJson>chunk(3)
+				.<StudentXml,StudentXml>chunk(3)
+				.reader(staxEventItemReader(null))
+				//.reader(jsonItemReader(null))
 				//.reader(flatFileItemReader(null))
 				//.processor(firstItemProcessor)
 				.writer(firstItemWriter)
@@ -131,5 +136,24 @@ public class SampleJob {
 		jsonItemReader.setCurrentItemCount(2);
 		
 		return jsonItemReader;
+	}
+	
+	@StepScope
+	@Bean
+	//streaming api for xml
+	public StaxEventItemReader<StudentXml> staxEventItemReader(@Value ("#{jobParameters['inputFile']}") FileSystemResource fileSystemResource){
+		StaxEventItemReader<StudentXml> staxEventItemReader
+		= new StaxEventItemReader<StudentXml>();
+		
+		staxEventItemReader.setResource(fileSystemResource);
+		staxEventItemReader.setFragmentRootElementName("student");
+		staxEventItemReader.setUnmarshaller(new Jaxb2Marshaller() {
+			{
+				setClassesToBeBound(StudentXml.class);
+			}
+		});
+		
+		
+		return staxEventItemReader;
 	}
 }
