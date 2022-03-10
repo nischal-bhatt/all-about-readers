@@ -55,6 +55,21 @@ public class SampleJob {
 	@Autowired
 	private DataSource datasource;
 	
+	/*      @Bean
+	 *      @Primary
+	 *      @ConfigurationProperties(prefix="spring.datasource")
+	 *      public DataSource datasource(){
+	 *          return DataSourceBuilder.create().build();
+	 *      }
+	 *      @Bean
+	 *      @ConfigurationProperties(prefix="spring.universitydatasource")
+	 *      public DataSource universitydatasource(){
+	 *          return DataSourceBuilder.create().build();
+	 *      }
+	 *      
+	 *      for student table in another schema
+	 */
+	
 	@Bean
 	public Job chunkJob() {
 		return jobBuilderFactory.get("Chunk Job")
@@ -172,6 +187,7 @@ public class SampleJob {
 		JdbcCursorItemReader<StudentJdbc> jdbcCursorItemReader
 		= new JdbcCursorItemReader<StudentJdbc>();
 		
+		//jdbcCursorItemReader.setDataSource(universitydatasource());
 		jdbcCursorItemReader.setDataSource(datasource);
 		jdbcCursorItemReader.setSql(
 				"select id, first_name as firstName, last_name as lastName, email from student");
