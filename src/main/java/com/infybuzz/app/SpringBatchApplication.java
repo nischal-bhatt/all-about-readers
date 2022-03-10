@@ -9,7 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
 @EnableBatchProcessing
 @ComponentScan({"com.infybuzz.config", "com.infybuzz.listener", 
 	"com.infybuzz.reader", "com.infybuzz.processor", 
-	"com.infybuzz.writer"})
+	"com.infybuzz.writer","com.infybuzz.service"})
 public class SpringBatchApplication {
 
 	public static void main(String[] args) {

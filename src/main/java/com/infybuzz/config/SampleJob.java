@@ -10,6 +10,7 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.item.adapter.ItemReaderAdapter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
@@ -29,9 +30,11 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import com.infybuzz.model.StudentCsv;
 import com.infybuzz.model.StudentJdbc;
 import com.infybuzz.model.StudentJson;
+import com.infybuzz.model.StudentResponse;
 import com.infybuzz.model.StudentXml;
 import com.infybuzz.processor.FirstItemProcessor;
 import com.infybuzz.reader.FirstItemReader;
+import com.infybuzz.service.StudentService;
 import com.infybuzz.writer.FirstItemWriter;
 
 @Configuration
@@ -52,6 +55,10 @@ public class SampleJob {
 	@Autowired
 	private FirstItemWriter firstItemWriter;
 
+	@Autowired
+	private StudentService studentService;
+	
+	
 	@Autowired
 	private DataSource datasource;
 	
@@ -83,8 +90,9 @@ public class SampleJob {
 				//.<StudentCsv, StudentCsv>chunk(3)
 				//.<StudentJson,StudentJson>chunk(3)
 				//.<StudentXml,StudentXml>chunk(3)
-				.<StudentJdbc,StudentJdbc>chunk(3)
-				.reader(jdbcCursorItemReader())
+				.<StudentResponse,StudentResponse>chunk(3)
+				.reader(itemReaderAdapter())
+				//.reader(jdbcCursorItemReader())
 				//.reader(staxEventItemReader(null))
 				//.reader(jsonItemReader(null))
 				//.reader(flatFileItemReader(null))
@@ -203,5 +211,17 @@ public class SampleJob {
 		
 		
 		return jdbcCursorItemReader;
+	}
+	
+	public ItemReaderAdapter<StudentResponse> itemReaderAdapter()
+	{
+		ItemReaderAdapter<StudentResponse> itemReaderAdapter
+		= new ItemReaderAdapter<StudentResponse>();
+	
+		itemReaderAdapter.setTargetObject(studentService);
+		itemReaderAdapter.setTargetMethod("getStudent");
+	    itemReaderAdapter.setArguments(new Object[] {1L,"TestNish"});
+		return itemReaderAdapter;
+	
 	}
 }
